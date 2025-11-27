@@ -18,7 +18,7 @@ LAPACKELIB=-llapacke
 OPTFLAGS=-O2
 
 #C++ compiler flags
-override CXXFLAGS+=-Wall -ansi -pedantic $(OPTFLAGS)
+override CXXFLAGS+=-Wall -std=c++11 -pedantic $(OPTFLAGS)
 
 #mkdir command (must have GNU syntax)
 GNUMKDIR=mkdir
@@ -177,3 +177,50 @@ $(OBP)/Monitoring.o: Monitoring.h
 #notes: only object files should be prerequisites
 #       the object file with the same name needn't be included
 $(EXP)/testGetOptions$(EXT): $(addprefix $(OBP)/,getoptions.o)
+
+# ==============================================================================
+# Custom Module: tcc
+# To build, run: make tcc
+# ==============================================================================
+
+TCCMODNAME:=tcc
+TCC_MAIN_PROG:=main
+
+TCC_SRC_FILES:=$(wildcard $(TCCMODNAME)/*.cpp)
+TCC_OBJ_FILES:=$(patsubst $(TCCMODNAME)/%.cpp,$(OBP)/$(TCCMODNAME)/%.o,$(TCC_SRC_FILES))
+
+TCC_EXEC_FILE:=$(EXP)/$(TCCMODNAME)/$(TCC_MAIN_PROG)$(EXT)
+
+SDPLINKS=-lsdp -lblas -llapack -lgfortran
+
+.PHONY: tcc
+tcc: $(TCC_EXEC_FILE)
+
+# Directory creation
+
+$(OBP)/$(TCCMODNAME):
+	$(GNUMKDIR) -p $@
+$(EXP)/$(TCCMODNAME):
+	$(GNUMKDIR) -p $@
+
+$(TCC_OBJ_FILES): | $(OBP)/$(TCCMODNAME)
+$(TCC_EXEC_FILE): | $(EXP)/$(TCCMODNAME)
+
+# Compilation rules
+
+# This compiles any .cpp file found in the tcc/ folder into its corresponding .o file in the object directory
+$(OBP)/$(TCCMODNAME)/%.o: $(TCCMODNAME)/%.cpp
+	@echo $(CXX) $(CXXFLAGS) -I[...] $< -c -o $@ $(SDPLINKS)
+	@$(CXX) $(CXXFLAGS) $(CXXINCLUDE) \
+		-I$(TCCMODNAME)/ \
+		-Isrc/include/Graph/ \
+		-Isrc/include/Digraph/ \
+		-Isrc/include/Tournament/ \
+		$< -c -o $@
+
+TCC_LIB_OBJS:=$(addprefix $(OBP)/,Flag.o bignum.o getoptions.o Monitoring.o)
+TCC_LIB_OBJS+=$(addprefix $(OBP)/Graph/,FlagGraph.o)
+TCC_LIB_OBJS+=$(addprefix $(OBP)/Digraph/,FlagDigraph.o)
+
+$(TCC_EXEC_FILE): $(TCC_OBJ_FILES) $(TCC_LIB_OBJS)
+	$(CXX) $(CXXFLAGS) $^ -o $@

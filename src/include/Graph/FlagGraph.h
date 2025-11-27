@@ -16,6 +16,8 @@ namespace FlagAlgebra {
 		explicit Graph(const std::vector<vbool>&);
 		Graph(unsigned long, const bool**);
 
+		bool is_adj(unsigned long, unsigned long) const;
+
 		unsigned long size() const;
 		Graph subobject(const vbool&) const;
 		bool completeIsomorphism(const Graph&, morphism&) const;

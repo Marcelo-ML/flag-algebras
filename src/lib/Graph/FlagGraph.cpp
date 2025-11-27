@@ -36,6 +36,10 @@ Graph::Graph(unsigned long size, const bool **mat) : s(size), m(size*size) {
 			m[s*i+j] = mat[i][j];
 }
 
+bool Graph::is_adj(unsigned long i, unsigned long j) const {
+	return m[s*i+j];
+}
+
 /* copy operator
  */
 Graph& Graph::operator=(const Graph& other) {
