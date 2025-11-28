@@ -28,17 +28,28 @@ void interactive_main(){
 }
 
 int main(int argc, char **argv) {
-	if (argc != 3) {
+	if (argc != 3 && argc != 4) {
 		std::cout << "Usage: " 
 		          << argv[0] << " "
 		          << "[local constraints file] "
 		          << "[semidefinite constraints file] "
+		          << "\n\nor\n\n"
+		          << "Usage: " 
+		          << argv[0] << " "
+		          << "[local constraints file] "
+		          << "[semidefinite constraints file] "
+		          << "[intermediate dat-s file (default: tmp.dat-s)]"
 		          << std::endl;
 		return 0;
 	}
 
 	LocalCut::ParamToSDP constraint_handler;
+	if (argc == 4)
+		constraint_handler.setTmpFilename(std::string(argv[3]));
+
+	std::cout << "Adding local cut constraints..." << std::endl;
 	constraint_handler.addLCCondition(std::string(argv[1]));
+	std::cout << "Adding semidefinite constraints..." << std::endl;
 	constraint_handler.addSDCondition(std::string(argv[2]));
 	double opt_val = constraint_handler.getOptimalValue();
 

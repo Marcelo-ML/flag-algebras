@@ -9,7 +9,9 @@ using std::vector;
 
 namespace LocalCut {
 
-ParamToSDP::ParamToSDP() {}
+ParamToSDP::ParamToSDP () { tmpFilename = "tmp.dat-s"; }
+
+void ParamToSDP::setTmpFilename (const std::string& filename) { tmpFilename = std::string(filename); }
 
 void ParamToSDP::addLCCondition (LocalCutCondition cond) {
 	lcConditions.push_back(cond);
@@ -93,6 +95,8 @@ SDPToSDPA ParamToSDP::getSDP() {
 		expSize = std::max(expSize, 2 * sdConditions[i].m - sdConditions[i].pi.size());
 	}
 
+	std::cout << "Expansion in size " << expSize << std::endl;
+
 
 	// STEP 0 - construct the sdp
 	SDPToSDPA sdp(r);
@@ -101,13 +105,25 @@ SDPToSDPA ParamToSDP::getSDP() {
 	vector< container< Flag<Graph> > > enumFlags(s);
 	for (unsigned long i=0; i<s; ++i) {
 		morphism f(sdConditions[i].pi.size());
-		for (unsigned j=0; j<f.size(); ++j)
+		for (unsigned long j=0; j<f.size(); ++j)
 			f[j]=j;
 		Flag<Graph> pi_flag(sdConditions[i].pi,f);
 
 		enumFlags[i] = enumerateFlags<Graph>(sdConditions[i].m,pi_flag);
 	}
-	// and add the matrix sizes to the program
+
+	// STEP 1.1 - clear out the flags with triangles
+	vector< container< Flag<Graph> > > enumFlagsNoTriangle(s);
+	for (unsigned long i=0; i<s; ++i) {
+		for (unsigned long j=0; j<enumFlags[i].size(); ++j) {
+			if (!hasTriangle(enumFlags[i][j].object())) {
+				enumFlagsNoTriangle[i].push_back(enumFlags[i][j]);
+			}
+		}
+	}
+	enumFlags = enumFlagsNoTriangle;
+
+	// STEP 1.2 - the matrix sizes to the program
 	for (unsigned long i=0; i<s; i++) {
 		sdp.addMatrixVariable(enumFlags[i].size());
 	}
@@ -165,11 +181,10 @@ SDPToSDPA ParamToSDP::getSDP() {
 }
 
 double ParamToSDP::getOptimalValue () {
-	getSDP().writeToFile("tmp.dat-s");
-	double opt_val = solve_sdpa_file("tmp.dat-s");
+	getSDP().writeToFile(tmpFilename);
+	double opt_val = solve_sdpa_file(tmpFilename);
 	return opt_val;
 }
 
 } // namespace LocalCut
-
 #endif

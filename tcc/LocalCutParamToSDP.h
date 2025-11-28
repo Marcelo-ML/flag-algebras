@@ -36,6 +36,8 @@ namespace LocalCut {
 	public:
 		ParamToSDP();
 
+		void setTmpFilename(const std::string&);
+
 		void addLCCondition(LocalCutCondition);
 		void addLCCondition(const std::string&);
 
@@ -48,6 +50,7 @@ namespace LocalCut {
 	private:
 		std::vector<LocalCutCondition> lcConditions;
 		std::vector<SDCondition> sdConditions;
+		std::string tmpFilename;
 	};
 }
 
