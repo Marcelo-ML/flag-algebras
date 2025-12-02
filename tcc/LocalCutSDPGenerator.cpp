@@ -106,9 +106,9 @@ void LocalCut::SDPToSDPA::writeToFile(const std::string& filename) {
     writeEntry(file, 0, 1, 1, 1, -1.0);
 
     // Block 2 (Alpha): Coeffs are +0.08
-    for (unsigned long i = 1; i <= numAlphas; ++i) {
-        writeEntry(file, 0, 2, i, i, 0.08);
-    }
+    //for (unsigned long i = 1; i <= numAlphas; ++i) {
+    //    writeEntry(file, 0, 2, i, i, 0.08);
+    //}
     // Other blocks (A_k, Slacks) have 0 coeff in objective
 
     // === MATRICES 1..m: CONSTRAINTS ===
@@ -123,9 +123,10 @@ void LocalCut::SDPToSDPA::writeToFile(const std::string& filename) {
         // Block 2 (Alpha): Coeffs -c_i
         const auto& c = constraints[k].c_coeffs;
         for (unsigned long i = 0; i < numAlphas; ++i) {
-            if (c[i] != 0.0) {
-                writeEntry(file, matIdx, 2, i + 1, i + 1, -c[i]);
-            }
+            //if (c[i] != 0.0) {
+            //    writeEntry(file, matIdx, 2, i + 1, i + 1, -c[i]);
+            //}
+            writeEntry(file, matIdx, 2, i + 1, i + 1, -c[i]);
         }
 
         // Blocks 3.. (Matrices A_k): Coeffs -d

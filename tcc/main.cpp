@@ -31,13 +31,8 @@ int main(int argc, char **argv) {
 	if (argc != 3 && argc != 4) {
 		std::cout << "Usage: " 
 		          << argv[0] << " "
-		          << "[local constraints file] "
-		          << "[semidefinite constraints file] "
-		          << "\n\nor\n\n"
-		          << "Usage: " 
-		          << argv[0] << " "
-		          << "[local constraints file] "
-		          << "[semidefinite constraints file] "
+		          << "<local constraints file> "
+		          << "<semidefinite constraints file> "
 		          << "[intermediate dat-s file (default: tmp.dat-s)]"
 		          << std::endl;
 		return 0;

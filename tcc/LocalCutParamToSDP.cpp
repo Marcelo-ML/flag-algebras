@@ -146,12 +146,22 @@ SDPToSDPA ParamToSDP::getSDP() {
 		// STEP 3.2 - determine c
 		vector<double> c(r,0.0);
 		for (unsigned i=0; i<r; ++i) {
+		
+			// the first part of c comes from writing the probability coefficient
 			BigNum::frac c_frac = 
 				calculateLocalCutCoefficient(
 					F,
 					lcConditions[i].sigma,
 					lcConditions[i].p
 					);
+		
+			// the second part of c comes from the normalization of the type given by sigma
+			morphism f(lcConditions[i].sigma.size());
+			for (unsigned j=0; j<f.size(); ++j) f[j]=j;
+			Flag<Graph> sigma_flag(lcConditions[i].sigma,f);
+
+
+			c_frac -= frac(bignum(2),bignum(25)) * getCoefficient(F,sigma_flag);
 			c[i] = fracToDouble(c_frac);
 		}
 
